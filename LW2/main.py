@@ -26,8 +26,11 @@ df[['pdays']] = df[['pdays']].replace(999, np.nan)
 print(f'Number of missing values in each column:\n {df.isnull().sum()}')
 print(f'Total number of missing values in the entire DataFrame:\n {df.isnull().sum().sum()}')
 
-# Drop rows with any missing values
-df = df.dropna()
+# Filling numerical missing values with mean
+df[['age', 'duration', 'campaign', 'pdays', 'previous']] = df[['age', 'duration', 'campaign', 'pdays', 'previous']].fillna(df[['age', 'duration', 'campaign', 'pdays', 'previous']].mean())
+
+# Filling categorical missing values with the most frequent values
+df[['job', 'marital', 'education', 'default', 'housing', 'loan', 'poutcome']] = df[['job', 'marital', 'education', 'default', 'housing', 'loan', 'poutcome']].apply(lambda x: x.fillna(x.mode()[0]))
 
 # Drop duplicate rows, modifying the DataFrame in place
 df = df.drop_duplicates()
@@ -71,9 +74,11 @@ def outliers_percentage(df):
 print(f'Outliers percentage:')
 outliers_percentage(df)
 
-# Scale/Normalize the data with big outliers percentage to reduce its impact
+# Scale the numeric columns
 scaler = StandardScaler()
-df[['duration', 'previous']] = scaler.fit_transform(df[['duration', 'previous']])
+numeric_features = df.select_dtypes(include=['float64', 'int64']).columns
+df[numeric_features] = scaler.fit_transform(df[numeric_features])
+
 
 # Define target variable
 target = 'y'
@@ -98,7 +103,7 @@ X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.4, random_
 X_dev, X_test, y_dev, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
 
 # Train logistic regression model
-model = LogisticRegression(random_state=42)
+model = LogisticRegression(random_state=42, max_iter=200)
 model.fit(X_train, y_train)
 
 # Make predictions on dev and test sets
