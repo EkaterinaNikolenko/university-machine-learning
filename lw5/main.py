@@ -31,8 +31,11 @@ df[['pdays']] = df[['pdays']].replace(999, np.nan)
 print(f'Number of missing values in each column:\n {df.isnull().sum()}')
 print(f'Total number of missing values in the entire DataFrame:\n {df.isnull().sum().sum()}')
 
-# Drop rows with any missing values
-df = df.dropna()
+# Filling numerical missing values with mean
+df[['age', 'duration', 'campaign', 'pdays', 'previous']] = df[['age', 'duration', 'campaign', 'pdays', 'previous']].fillna(df[['age', 'duration', 'campaign', 'pdays', 'previous']].mean())
+
+# Filling categorical missing values with the most frequent values
+df[['job', 'marital', 'education', 'default', 'housing', 'loan', 'poutcome']] = df[['job', 'marital', 'education', 'default', 'housing', 'loan', 'poutcome']].apply(lambda x: x.fillna(x.mode()[0]))
 
 # Drop duplicate rows, modifying the DataFrame in place
 df = df.drop_duplicates()
@@ -116,7 +119,7 @@ y_pred = ada_clf.predict(X_test)
 
 # Evaluate classification accuracy
 ada_accuracy = accuracy_score(y_test, y_pred)
-print(f"Accuracy: {ada_accuracy}")
+print(f"AdaBoostClassifier accuracy: {ada_accuracy}")
 
 # Hyperparameter tuning for n_estimators and learning_rate
 param_range = np.arange(1, 201, 10)
@@ -150,7 +153,7 @@ gradient_clf.fit(X_train, y_train)
 y_pred = gradient_clf.predict(X_test)
 
 gradient_clf = accuracy_score(y_test, y_pred)
-print(f"Accuracy: {gradient_clf}")
+print(f"GradientBoostingClassifier accuracy: {gradient_clf}")
 
 # Hyperparameter tuning for n_estimators and learning_rate
 param_range = np.arange(1, 201, 10)
@@ -176,9 +179,9 @@ plt.title("Validation Curve with GradientBoosting")
 plt.savefig('result/validation_curve_gradient_boosting.png')
 plt.close()
 
-# List of models with increased max_iter for Logistic Regression
+# List of models
 models = {
-    "Logistic Regression": LogisticRegression(solver='lbfgs', max_iter=1000),
+    "Logistic Regression": LogisticRegression(solver='lbfgs', max_iter=2500),
     "K-Nearest Neighbors": KNeighborsClassifier(),
     "Decision Tree": DecisionTreeClassifier(),
     "Random Forest": RandomForestClassifier(),
