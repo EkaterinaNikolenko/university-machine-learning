@@ -28,9 +28,11 @@ df[['pdays']] = df[['pdays']].replace(999, np.nan)
 print(f'Number of missing values in each column:\n {df.isnull().sum()}')
 print(f'Total number of missing values in the entire DataFrame:\n {df.isnull().sum().sum()}')
 
-# Drop rows with any missing values
-df = df.dropna()
+# Filling numerical missing values with mean
+df[['age', 'duration', 'campaign', 'pdays', 'previous']] = df[['age', 'duration', 'campaign', 'pdays', 'previous']].fillna(df[['age', 'duration', 'campaign', 'pdays', 'previous']].mean())
 
+# Filling categorical missing values with the most frequent values
+df[['job', 'marital', 'education', 'default', 'housing', 'loan', 'poutcome']] = df[['job', 'marital', 'education', 'default', 'housing', 'loan', 'poutcome']].apply(lambda x: x.fillna(x.mode()[0]))
 
 # Drop duplicate rows, modifying the DataFrame in place
 df = df.drop_duplicates()
@@ -286,10 +288,10 @@ print(f"Random Forest Accuracy: {rf_accuracy}")
 
 # Hyperparameter grid
 param_grid_rf = {
-    'n_estimators': [100, 200, 300],
-    'max_depth': [3, 5, 7, 10],
-    'min_samples_split': [2, 5, 10],
-    'min_samples_leaf': [1, 2, 4],
+    'n_estimators': [100, 200],
+    'max_depth': [3, 5],
+    'min_samples_split': [2, 5],
+    'min_samples_leaf': [1, 2],
     'max_features': [None, 'sqrt', 'log2']
 }
 
@@ -303,7 +305,7 @@ grid_search_rf.fit(X_train, y_train)
 print(f"Best parameters found: {grid_search_rf.best_params_}")
 print(f"Best cross-validation accuracy: {grid_search.best_score_}")
 
-param_range = [100, 200, 300]
+param_range = [100, 200]
 train_scores, valid_scores = validation_curve(
     RandomForestClassifier(random_state=42),
     X_train,
@@ -332,7 +334,7 @@ plt.grid()
 plt.savefig('result/validation_curve_random_forest_n_estimators.png')
 plt.close()
 
-param_range = [3, 5, 7, 10]
+param_range = [3, 5]
 train_scores, valid_scores = validation_curve(
     RandomForestClassifier(random_state=42),
     X_train,
@@ -361,7 +363,7 @@ plt.grid()
 plt.savefig('result/validation_curve_random_forest_max_depth.png')
 plt.close()
 
-param_range = [2, 5, 10]
+param_range = [2, 5]
 train_scores, valid_scores = validation_curve(
     RandomForestClassifier(random_state=42),
     X_train,
@@ -391,7 +393,7 @@ plt.savefig('result/validation_curve_random_forest_min_samples_split.png')
 plt.close()
 
 # Define hyperparameter range for min_samples_leaf
-param_range = [1, 2, 4]
+param_range = [1, 2]
 # Compute validation curve
 train_scores, valid_scores = validation_curve(
     RandomForestClassifier(random_state=42),
@@ -434,6 +436,7 @@ train_scores, valid_scores = validation_curve(
     param_range=[None, 'sqrt', 'log2'],
     cv=kf,
     scoring="accuracy"
+    # n_jobs=-1
 )
 
 # Calculate mean and standard deviation
