@@ -27,9 +27,11 @@ df[['pdays']] = df[['pdays']].replace(999, np.nan)
 print(f'Number of missing values in each column:\n {df.isnull().sum()}')
 print(f'Total number of missing values in the entire DataFrame:\n {df.isnull().sum().sum()}')
 
-# Drop rows with any missing values
-df = df.dropna()
+# Filling numerical missing values with mean
+df[['age', 'duration', 'campaign', 'pdays', 'previous']] = df[['age', 'duration', 'campaign', 'pdays', 'previous']].fillna(df[['age', 'duration', 'campaign', 'pdays', 'previous']].mean())
 
+# Filling categorical missing values with the most frequent values
+df[['job', 'marital', 'education', 'default', 'housing', 'loan', 'poutcome']] = df[['job', 'marital', 'education', 'default', 'housing', 'loan', 'poutcome']].apply(lambda x: x.fillna(x.mode()[0]))
 
 # Drop duplicate rows, modifying the DataFrame in place
 df = df.drop_duplicates()
@@ -147,11 +149,11 @@ plt.close()
 
 # Configure GridSearchCV to find optimal p 
 param_grid = {
-    'p': np.linspace(1, 10, 20) 
+    'p': np.linspace(1, 10, 10) 
 } 
 
 knn = KNeighborsClassifier(n_neighbors=best_k, weights='distance') 
-grid_search = GridSearchCV(knn, param_grid, cv=5, scoring='accuracy') 
+grid_search = GridSearchCV(knn, param_grid, cv=3, scoring='accuracy') 
 grid_search.fit(X_train, y_train) 
 best_p = grid_search.best_params_['p']
 best_score = grid_search.best_score_ 
@@ -174,5 +176,5 @@ plt.close()
 
 # NearestCentroid
 centroid_classifier = NearestCentroid()
-scores = cross_val_score(centroid_classifier, X_train, y_train, cv=5, scoring='accuracy')
+scores = cross_val_score(centroid_classifier, X_train, y_train, cv=kf, scoring='accuracy')
 print(f"Accuracy of NearestCentroid: {scores.mean():.4f}")
