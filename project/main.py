@@ -20,7 +20,7 @@ print(f'Shape of vodafone_music data:\n {vodafone_music.shape}')
 print(f'Number of missing values in each vodafone_music column:\n {vodafone_music.isnull().sum()}')
 print(f'Total number of missing values in the entire vodafone_music:\n {vodafone_music.isnull().sum().sum()}')
 
-# Drop rows with any missing values
+# Filling numerical missing values with mean
 vodafone_music.fillna(vodafone_music.mean(), inplace=True)
 
 print(f'Number of missing values in each vodafone_music column:\n {vodafone_music.isnull().sum()}')
@@ -261,7 +261,7 @@ y_pred_xgb = best_xgb.predict(X_test)
 print("XGBoost:")
 evaluate_model(y_test, y_pred_xgb)
 
-plot_top_10_feature_importance(best_xgb, X, model_name='Random Forest', save_path='results/top_10_feature_importance_xgb.png')
+plot_top_10_feature_importance(best_xgb, X, model_name='XGBoost', save_path='results/top_10_feature_importance_xgb.png')
 plot_validation_curve(xgb_model, X_train, y_train, 'n_estimators', [50, 100, 150], cv=kf, scoring='f1', model_name='XGBoost', save_path='results/validation_curve_xgb_n_estimators_f1.png')
 plot_validation_curve(xgb_model, X_train, y_train, 'learning_rate', [0.01, 0.1, 0.2], cv=kf, scoring='f1', model_name='XGBoost', save_path='results/validation_curve_xgb_learning_rate_f1.png')
 plot_validation_curve(xgb_model, X_train, y_train, 'max_depth', [3, 5, 7], cv=kf, scoring='f1', model_name='XGBoost', save_path='results/validation_curve_xgb_max_depth_f1.png')
